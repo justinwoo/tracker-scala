@@ -1,0 +1,12 @@
+@(showData: String)
+
+@main("tracker-scala") {
+
+    <div class="container-fluid">
+        <div id="app"></div>
+    </div>
+    <script type="text/javascript">window.showData=[@Html(showData)];</script>
+    <script type="text/javascript" src="@routes.Assets.versioned("index.js")"></script>
+
+
+}

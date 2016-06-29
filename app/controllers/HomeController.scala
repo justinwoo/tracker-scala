@@ -22,13 +22,13 @@ class HomeController @Inject()(shows: Shows)(implicit exec: ExecutionContext) ex
    * a path of `/`.
    */
   def index = Action.async {
-    shows.getAll().map { x: List[Show] =>
-      Ok(views.html.index(x.flatMap({show => {
-        show match {
+    shows.getAll().map { xs: List[Show] =>
+      Ok(views.html.index(xs.flatMap({
+        _ match {
           case Show(name, count) => List(s"{name: \'$name\', count: \'$count\'}")
           case _ => List.empty
         }
-      }}).mkString(",")))
+      }).mkString(",")))
     }
   }
 

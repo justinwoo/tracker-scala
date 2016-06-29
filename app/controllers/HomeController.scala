@@ -23,13 +23,12 @@ class HomeController @Inject()(shows: Shows)(implicit exec: ExecutionContext) ex
    */
   def index = Action.async {
     shows.getAll().map { x: List[Show] =>
-      val showData = x.flatMap({show => {
+      Ok(views.html.index(x.flatMap({show => {
         show match {
           case Show(name, count) => List(s"{name: \'$name\', count: \'$count\'}")
           case _ => List.empty
         }
-      }}).mkString(",")
-      Ok(views.html.index(showData))
+      }}).mkString(",")))
     }
   }
 
@@ -44,7 +43,7 @@ class HomeController @Inject()(shows: Shows)(implicit exec: ExecutionContext) ex
         }
         case None => None
       }) match {
-        case Some(x) => updateMethod(x).map { x => Ok(x) }
+        case Some(x) => updateMethod(x).map(Ok(_))
         case None => Future.apply(BadRequest("What did you do???"))
       }
     }

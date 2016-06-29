@@ -6,6 +6,7 @@ import javax.inject._
 import com.redis.RedisClient
 
 import scala.concurrent.{Future, Promise}
+import scala.util.matching.Regex
 
 case class Show(name: String, count: String)
 
@@ -30,11 +31,12 @@ trait Shows {
 class AtomicShows() extends Shows {
   private val r = new RedisClient("localhost", 6379)
   private val names: List[String] = new File(sys.env("ANIMU_HOME")).listFiles().flatMap(f => {
-    val (head, tail) = ("^\\[.*\\] ".r, " - \\d*.*$".r)
-    val filename = f.getName
+    val (filename, head, tail) = (f.getName, "^\\[.*\\] ".r, " - \\d*.*$".r)
     (head findFirstIn filename, tail findFirstIn filename) match {
       case (Some(_), Some(_)) => {
-        List(head replaceFirstIn (tail replaceFirstIn (filename, ""), ""))
+        def remove(r: Regex): (String) => String = r.replaceFirstIn (_, "")
+        def strip = remove(head) compose remove(tail)
+        List(strip(filename))
       }
       case (_, _) => List.empty
     }

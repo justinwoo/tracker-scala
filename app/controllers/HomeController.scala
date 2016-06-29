@@ -34,15 +34,10 @@ class HomeController @Inject()(shows: Shows)(implicit exec: ExecutionContext) ex
 
   private def handleShowUpdate(updateMethod: String => Future[String]) = {
     Action.async { request =>
-      (request.body.asFormUrlEncoded match {
-        case Some(x) => {
-          x.get("name") match {
-            case Some(x) => Some(x.mkString(""))
-            case None => None
-          }
-        }
-        case None => None
-      }) match {
+      (for {
+        form <- request.body.asFormUrlEncoded
+        name <- form.get("name")
+      } yield name.mkString("")) match {
         case Some(x) => updateMethod(x).map(Ok(_))
         case None => Future.apply(BadRequest("What did you do???"))
       }
